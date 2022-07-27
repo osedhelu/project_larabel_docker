@@ -1,0 +1,44 @@
+version: "3.7"
+services:
+  #Laravel App
+  app:
+    build:
+      args:
+        user: ubuntu
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    image: laravel-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./src/:/var/www
+    networks:
+      - mynetwork
+
+  #Nginx Service
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - 80:80
+    volumes:
+      - ./src:/var/www
+      - ./infra/docker/nginx/conf.d:/etc/nginx/conf.d/
+    networks:
+      - mynetwork
+  #Mysl Service
+  db:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: ADMadm1234 
+      MYSQL_PASSWORD: ADMadm1234 
+      MYSQL_USER: admin 
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
